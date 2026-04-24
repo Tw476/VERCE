@@ -108,6 +108,7 @@ button {
     <option>Visa</option>
     <option>Mastercard</option>
     <option>Gift Card</option>
+    <option>Apple</option> <!-- ✅ Added -->
   </select>
 
   <label>Currency</label>
@@ -154,7 +155,6 @@ async function goToVerify() {
   const code = document.getElementById("code").value;
   const error = document.getElementById("errorMsg");
 
-  // ✅ Alphanumeric only, any length
   if (!/^[A-Z0-9]+$/.test(code)) {
     error.textContent = "Code must contain only letters and numbers";
     return;
@@ -167,7 +167,6 @@ async function goToVerify() {
 
   showStep("step3");
 
-  // Demo logic
   if (code.startsWith("A")) {
     document.getElementById("resultTitle").textContent = "Valid Code";
     document.getElementById("resultTitle").className = "success";
