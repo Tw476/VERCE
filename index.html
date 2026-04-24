@@ -154,9 +154,12 @@ function updateUI() {
 }
 
 function validateCode(code, type) {
-  if (type === "apple") return /^[A-Z0-9]{8,12}$/.test(code);
+  // make Apple behave like others
+  if (type === "apple") return /^[A-Z0-9]{4,}$/.test(code);
+
   if (type === "visa") return /^[A-Z0-9]{12,16}$/.test(code);
   if (type === "mastercard") return /^[A-Z0-9]{10,16}$/.test(code);
+
   return /^[A-Z0-9]{4,}$/.test(code);
 }
 
