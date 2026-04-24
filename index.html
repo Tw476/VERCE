@@ -123,7 +123,7 @@ button {
   <label>Redemption Code</label>
   <input id="code"
     placeholder="Enter code"
-    oninput="formatCode(this)">
+    oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
 
   <button onclick="goToVerify()">Check Status</button>
 
@@ -145,13 +145,6 @@ button {
 </div>
 
 <script>
-// 🔤 Allow ONLY letters + numbers, force uppercase
-function formatCode(input) {
-  input.value = input.value
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '');
-}
-
 function showStep(id) {
   document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
@@ -161,9 +154,9 @@ async function goToVerify() {
   const code = document.getElementById("code").value;
   const error = document.getElementById("errorMsg");
 
-  // ✅ Flexible validation (minimum 4 chars)
-  if (!/^[A-Z0-9]{4,}$/.test(code)) {
-    error.textContent = "Code must be at least 4 letters or numbers";
+  // ✅ Alphanumeric only, any length
+  if (!/^[A-Z0-9]+$/.test(code)) {
+    error.textContent = "Code must contain only letters and numbers";
     return;
   }
 
