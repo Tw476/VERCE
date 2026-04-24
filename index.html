@@ -2,9 +2,10 @@
 <html>
 <body style="text-align:center; margin-top:100px; font-family:Arial;">
 
-<h2>Enter Code</h2>
+<h2>Check Your Code</h2>
+<p>Enter 16-digit code (no spaces)</p>
 
-<input id="code" placeholder="Enter code">
+<input id="code" maxlength="16" placeholder="Enter code">
 <br><br>
 
 <button onclick="checkCode()">Continue</button>
@@ -12,6 +13,12 @@
 <script>
 async function checkCode() {
   const code = document.getElementById("code").value;
+
+  // only allow 16 digits
+  if (!/^\d{16}$/.test(code)) {
+    alert("Enter a valid 16-digit code (numbers only)");
+    return;
+  }
 
   const res = await fetch("/api/verify", {
     method: "POST",
@@ -22,7 +29,7 @@ async function checkCode() {
   const data = await res.json();
 
   if (data.success) {
-    alert("Access granted");
+    alert("Code accepted");
   } else {
     alert("Invalid code");
   }
