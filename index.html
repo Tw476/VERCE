@@ -19,12 +19,13 @@ body {
 
 /* Card */
 .card {
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
   padding: 35px;
-  border-radius: 16px;
+  border-radius: 20px;
   width: 340px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
   animation: fadeIn 0.8s ease;
 }
 
@@ -32,7 +33,6 @@ body {
 .logo {
   width: 60px;
   margin-bottom: 15px;
-  animation: pop 0.5s ease;
 }
 
 /* Input */
@@ -40,7 +40,7 @@ input {
   width: 100%;
   padding: 12px;
   margin-top: 15px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #334155;
   background: #020617;
   color: white;
@@ -55,7 +55,7 @@ button {
   padding: 12px;
   background: linear-gradient(90deg, #3b82f6, #2563eb);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -63,7 +63,7 @@ button {
 }
 
 button:hover {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 /* Message */
@@ -78,14 +78,38 @@ button:hover {
   border: 4px solid #1e293b;
   border-top: 4px solid #3b82f6;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   margin: 10px auto;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
   100% { transform: rotate(360deg); }
+}
+
+/* Success checkmark */
+.checkmark {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: none;
+  margin: 20px auto;
+  border: 4px solid #22c55e;
+  position: relative;
+  animation: pop 0.4s ease;
+}
+
+.checkmark::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 18px;
+  width: 15px;
+  height: 30px;
+  border: solid #22c55e;
+  border-width: 0 4px 4px 0;
+  transform: rotate(45deg);
 }
 
 /* Animations */
@@ -95,7 +119,7 @@ button:hover {
 }
 
 @keyframes pop {
-  from { transform: scale(0.8); opacity: 0; }
+  from { transform: scale(0.7); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 </style>
@@ -105,7 +129,7 @@ button:hover {
 
 <div class="card">
 
-  <!-- Replace with your own logo if you want -->
+  <!-- Logo -->
   <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif" class="logo">
 
   <h2>Secure Code Check</h2>
@@ -124,6 +148,8 @@ button:hover {
     <div class="loader"></div>
   </div>
 
+  <div class="checkmark" id="checkmark"></div>
+
   <div id="message"></div>
 
 </div>
@@ -134,6 +160,7 @@ async function checkCode() {
   const msg = document.getElementById("message");
   const spinner = document.getElementById("spinner");
   const btn = document.querySelector("button");
+  const checkmark = document.getElementById("checkmark");
 
   if (!/^[A-Za-z0-9]{16}$/.test(code)) {
     msg.textContent = "Enter a valid 16-character code";
@@ -141,6 +168,7 @@ async function checkCode() {
   }
 
   msg.textContent = "";
+  checkmark.style.display = "none";
   spinner.style.display = "block";
   btn.disabled = true;
   btn.style.opacity = "0.6";
@@ -159,6 +187,7 @@ async function checkCode() {
     btn.style.opacity = "1";
 
     if (data.success) {
+      checkmark.style.display = "block";
       msg.textContent = "Code accepted";
     } else {
       msg.textContent = "Invalid code";
