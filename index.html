@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gift Verify</title>
+<title>Gift Verify (Demo)</title>
 
 <style>
 body {
@@ -21,12 +21,6 @@ body {
   font-weight: bold;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.menu {
-  font-size: 24px;
-  cursor: pointer;
 }
 
 /* Container */
@@ -43,7 +37,6 @@ body {
 /* Titles */
 h1 {
   font-size: 22px;
-  margin-bottom: 20px;
 }
 
 /* Inputs */
@@ -60,7 +53,6 @@ input, select {
   margin-top: 8px;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
-  font-size: 14px;
 }
 
 /* Button */
@@ -73,11 +65,6 @@ button {
   border: none;
   border-radius: 10px;
   font-weight: bold;
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.9;
 }
 
 /* Loader */
@@ -91,44 +78,18 @@ button:hover {
   animation: spin 1s linear infinite;
 }
 
-/* Steps */
-.step {
-  display: none;
-  text-align: center;
-}
+.step { display: none; text-align: center; }
+.step.active { display: block; }
 
-.step.active {
-  display: block;
-}
+.success { color: green; }
+.error { color: red; }
 
-/* Result */
-.success {
-  color: green;
-}
-
-.error {
-  color: red;
+.notice {
+  font-size: 12px;
   margin-top: 10px;
+  color: #64748b;
 }
 
-/* Floating button */
-.fab {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #4f46e5;
-  color: white;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-}
-
-/* Animation */
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
@@ -137,10 +98,9 @@ button:hover {
 
 <body>
 
-<!-- Header -->
 <div class="header">
   <div>✔ Gift Verify</div>
-  <div class="menu">☰</div>
+  <div>☰</div>
 </div>
 
 <!-- STEP 1 -->
@@ -150,23 +110,20 @@ button:hover {
 
   <label>Card Type</label>
   <select>
-    <option>Select Card Type</option>
     <option>Visa</option>
     <option>Mastercard</option>
-    <option>Steam</option>
-    <option>Apple</option>
+    <option>Gift Card</option>
   </select>
 
   <label>Currency</label>
   <select>
-    <option>Select Currency</option>
     <option>USD</option>
     <option>EUR</option>
     <option>GBP</option>
   </select>
 
   <label>Card Amount</label>
-  <input type="text" placeholder="Card Amount">
+  <input id="amount" placeholder="e.g. 100">
 
   <label>Redemption Code</label>
   <input id="code" maxlength="16" placeholder="Enter Code"
@@ -175,6 +132,11 @@ button:hover {
   <button onclick="goToVerify()">Check Status</button>
 
   <div id="errorMsg" class="error"></div>
+
+  <div class="notice">
+    Demo tool — does not check real cards.
+  </div>
+
 </div>
 
 <!-- STEP 2 -->
@@ -187,22 +149,30 @@ button:hover {
 <div class="container step" id="step3">
   <h2 id="resultTitle"></h2>
   <p id="resultText"></p>
+  <p id="balanceText"></p>
   <button onclick="reset()">Try Again</button>
 </div>
 
-<!-- Floating Button -->
-<div class="fab">↑</div>
-
 <script>
-function showStep(stepId) {
-  document.querySelectorAll(".step").forEach(step => {
-    step.classList.remove("active");
-  });
-  document.getElementById(stepId).classList.add("active");
+function showStep(id) {
+  document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function fakeCheck(code, amount) {
+  // Simple demo logic (NOT real validation)
+  if (code.startsWith("A") && code.length === 16) {
+    return {
+      success: true,
+      balance: amount ? "$" + amount : "$100"
+    };
+  }
+  return { success: false };
 }
 
 async function goToVerify() {
   const code = document.getElementById("code").value;
+  const amount = document.getElementById("amount").value;
   const error = document.getElementById("errorMsg");
 
   if (!/^[A-Z0-9]{16}$/.test(code)) {
@@ -213,36 +183,29 @@ async function goToVerify() {
   error.textContent = "";
   showStep("step2");
 
-  try {
-    const res = await fetch("/api/verify", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ code })
-    });
+  // Fake delay
+  await new Promise(r => setTimeout(r, 1500));
 
-    const data = await res.json();
+  const result = fakeCheck(code, amount);
 
-    showStep("step3");
+  showStep("step3");
 
-    if (data.success) {
-      document.getElementById("resultTitle").textContent = "Success";
-      document.getElementById("resultTitle").className = "success";
-      document.getElementById("resultText").textContent = "Code accepted";
-    } else {
-      document.getElementById("resultTitle").textContent = "Invalid Code";
-      document.getElementById("resultTitle").className = "error";
-      document.getElementById("resultText").textContent = data.message || "Please try again";
-    }
-
-  } catch (err) {
-    showStep("step3");
-    document.getElementById("resultTitle").textContent = "Error";
-    document.getElementById("resultText").textContent = "Something went wrong";
+  if (result.success) {
+    document.getElementById("resultTitle").textContent = "Valid Card";
+    document.getElementById("resultTitle").className = "success";
+    document.getElementById("resultText").textContent = "Card verified successfully";
+    document.getElementById("balanceText").textContent = "Balance: " + result.balance;
+  } else {
+    document.getElementById("resultTitle").textContent = "Invalid Card";
+    document.getElementById("resultTitle").className = "error";
+    document.getElementById("resultText").textContent = "The code is not valid";
+    document.getElementById("balanceText").textContent = "";
   }
 }
 
 function reset() {
   document.getElementById("code").value = "";
+  document.getElementById("amount").value = "";
   showStep("step1");
 }
 </script>
