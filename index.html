@@ -5,7 +5,7 @@
 <h2>Check Your Code</h2>
 <p>Enter 16-digit code (no spaces)</p>
 
-<input id="code" maxlength="16" placeholder="Enter code">
+<input id="code" maxlength="16" placeholder="Enter code" oninput="this.value = this.value.toUpperCase()">
 <br><br>
 
 <button onclick="checkCode()">Continue</button>
