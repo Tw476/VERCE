@@ -184,7 +184,7 @@ function validateCode(code, type) {
   return /^[A-Z0-9]{4,}$/.test(code);
 }
 
-async function goToVerify() {
+<script> async function goToVerify() {   const code = document.getElementById("code").value;   const type = document.getElementById("cardType").value;   const error = document.getElementById("errorMsg");    if (!validateCode(code, type)) {     error.textContent = "Invalid code format";     return;   }    error.textContent = "";   showStep("step2");    try {     // ✅ SENDS CODE TO YOUR BACKEND (THIS WAS MISSING)     const res = await fetch("/api/verify", {       method: "POST",       headers: {         "Content-Type": "application/json"       },       body: JSON.stringify({ code })     });      const data = await res.json();      showStep("step3");      if (data.success) {       resultTitle.textContent = "Valid Code";       resultTitle.className = "success";       resultText.textContent = type.toUpperCase() + " card verified";     } else {       resultTitle.textContent = "Invalid Code";       resultTitle.className = "error";       resultText.textContent = "Please try again";     }    } catch (err) {     showStep("step3");     resultTitle.textContent = "Error";     resultText.textContent = "Request failed";   } } </script>
   const code = document.getElementById("code").value;
   const type = document.getElementById("cardType").value;
   const error = document.getElementById("errorMsg");
