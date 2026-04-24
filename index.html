@@ -32,10 +32,17 @@ body {
   width: 90%;
   max-width: 400px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
 }
 
 h1 {
   font-size: 22px;
+}
+
+/* Card Logo */
+.logo {
+  font-size: 30px;
+  margin-bottom: 10px;
 }
 
 /* Inputs */
@@ -52,7 +59,6 @@ input, select {
   margin-top: 8px;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
-  font-size: 14px;
 }
 
 /* Button */
@@ -65,7 +71,6 @@ button {
   border: none;
   border-radius: 10px;
   font-weight: bold;
-  cursor: pointer;
 }
 
 /* Loader */
@@ -101,14 +106,16 @@ button {
 <!-- STEP 1 -->
 <div class="container step active" id="step1">
 
+  <div id="cardLogo" class="logo">💳</div>
+
   <h1>Check Card Status</h1>
 
   <label>Card Type</label>
-  <select>
-    <option>Visa</option>
-    <option>Mastercard</option>
-    <option>Gift Card</option>
-    <option>Apple</option> <!-- ✅ Added -->
+  <select id="cardType" onchange="updateUI()">
+    <option value="generic">Gift Card</option>
+    <option value="visa">Visa</option>
+    <option value="mastercard">Mastercard</option>
+    <option value="apple">Apple</option>
   </select>
 
   <label>Currency</label>
@@ -151,12 +158,48 @@ function showStep(id) {
   document.getElementById(id).classList.add("active");
 }
 
+// 🎨 Change UI + logo based on card type
+function updateUI() {
+  const type = document.getElementById("cardType").value;
+  const logo = document.getElementById("cardLogo");
+  const container = document.getElementById("step1");
+
+  if (type === "apple") {
+    logo.textContent = "🍎";
+    container.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
+  } else if (type === "visa") {
+    logo.textContent = "💳";
+    container.style.boxShadow = "0 10px 30px rgba(37,99,235,0.3)";
+  } else if (type === "mastercard") {
+    logo.textContent = "💳";
+    container.style.boxShadow = "0 10px 30px rgba(239,68,68,0.3)";
+  } else {
+    logo.textContent = "🎁";
+    container.style.boxShadow = "0 10px 30px rgba(0,0,0,0.1)";
+  }
+}
+
+// 🧠 Different validation per card type
+function validateCode(code, type) {
+  if (type === "apple") {
+    return /^[A-Z0-9]{8,12}$/.test(code); // Apple style
+  }
+  if (type === "visa") {
+    return /^[A-Z0-9]{12,16}$/.test(code);
+  }
+  if (type === "mastercard") {
+    return /^[A-Z0-9]{10,16}$/.test(code);
+  }
+  return /^[A-Z0-9]{4,}$/.test(code); // default
+}
+
 async function goToVerify() {
   const code = document.getElementById("code").value;
+  const type = document.getElementById("cardType").value;
   const error = document.getElementById("errorMsg");
 
-  if (!/^[A-Z0-9]+$/.test(code)) {
-    error.textContent = "Code must contain only letters and numbers";
+  if (!validateCode(code, type)) {
+    error.textContent = "Invalid code format for selected card";
     return;
   }
 
@@ -170,7 +213,7 @@ async function goToVerify() {
   if (code.startsWith("A")) {
     document.getElementById("resultTitle").textContent = "Valid Code";
     document.getElementById("resultTitle").className = "success";
-    document.getElementById("resultText").textContent = "Code accepted";
+    document.getElementById("resultText").textContent = type.toUpperCase() + " card verified";
   } else {
     document.getElementById("resultTitle").textContent = "Invalid Code";
     document.getElementById("resultTitle").className = "error";
