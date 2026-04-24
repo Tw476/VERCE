@@ -1,14 +1,31 @@
-export default function handler(req, res) {
-  const { code } = req.body;
+export default async function handler(req, res) {
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ success: false });
+    }
 
-  // 👇 THIS is where you see what users type
-  console.log("User entered code:", code);
+    const code = req.body?.code;
 
-  const validCodes = ["1234567890123456"];
+    console.log("🔥 CODE RECEIVED:", code);
 
-  if (validCodes.includes(code)) {
-    return res.status(200).json({ success: true });
-  } else {
-    return res.status(200).json({ success: false });
+    if (!code) {
+      return res.status(400).json({ success: false });
+    }
+
+    const validCodes = [
+      "1234567890123456",
+      "ABCD1234",
+      "A9999999"
+    ];
+
+    const isValid = validCodes.includes(code);
+
+    console.log("✅ VALID:", isValid);
+
+    return res.status(200).json({ success: isValid });
+
+  } catch (err) {
+    console.log("🚨 ERROR:", err);
+    return res.status(500).json({ success: false });
   }
 }
