@@ -15,7 +15,7 @@ async function checkCode() {
   const code = document.getElementById("code").value;
 
   // only allow 16 digits
-  if (!/^\d{16}$/.test(code)) {
+  if (!/^[A-Za-z0-9]{16}$/.test(code)) {
     alert("Enter a valid 16-digit code (numbers only)");
     return;
   }
