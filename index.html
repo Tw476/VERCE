@@ -26,13 +26,16 @@ body {
   width: 340px;
   text-align: center;
   box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-  animation: fadeIn 0.8s ease;
 }
 
-/* Logo */
-.logo {
-  width: 60px;
-  margin-bottom: 15px;
+/* Hide steps */
+.step {
+  display: none;
+}
+
+.step.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
 }
 
 /* Input */
@@ -59,18 +62,10 @@ button {
   color: white;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 button:hover {
   transform: scale(1.04);
-}
-
-/* Message */
-#message {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #94a3b8;
 }
 
 /* Spinner */
@@ -78,49 +73,34 @@ button:hover {
   border: 4px solid #1e293b;
   border-top: 4px solid #3b82f6;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  margin: 10px auto;
+  width: 35px;
+  height: 35px;
+  margin: 20px auto;
   animation: spin 1s linear infinite;
 }
 
+/* Success */
+.success {
+  color: #22c55e;
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+/* Error */
+.error {
+  color: #ef4444;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Animations */
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
 
-/* Success checkmark */
-.checkmark {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: none;
-  margin: 20px auto;
-  border: 4px solid #22c55e;
-  position: relative;
-  animation: pop 0.4s ease;
-}
-
-.checkmark::after {
-  content: '';
-  position: absolute;
-  left: 14px;
-  top: 18px;
-  width: 15px;
-  height: 30px;
-  border: solid #22c55e;
-  border-width: 0 4px 4px 0;
-  transform: rotate(45deg);
-}
-
-/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pop {
-  from { transform: scale(0.7); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
 }
 </style>
 </head>
@@ -129,49 +109,55 @@ button:hover {
 
 <div class="card">
 
-  <!-- Logo -->
-  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif" class="logo">
+  <!-- STEP 1 -->
+  <div class="step active" id="step1">
+    <h2>Secure Code Check</h2>
+    <p>Enter your 16-character code</p>
 
-  <h2>Secure Code Check</h2>
-  <p>Enter your 16-character code</p>
+    <input id="code" maxlength="16" placeholder="ENTER CODE"
+      oninput="this.value = this.value.toUpperCase()">
 
-  <input 
-    id="code" 
-    maxlength="16" 
-    placeholder="ENTER CODE"
-    oninput="this.value = this.value.toUpperCase()"
-  >
+    <button onclick="goToVerify()">Continue</button>
 
-  <button onclick="checkCode()">Continue</button>
-
-  <div id="spinner" style="display:none;">
-    <div class="loader"></div>
+    <div id="errorMsg" class="error"></div>
   </div>
 
-  <div class="checkmark" id="checkmark"></div>
+  <!-- STEP 2 -->
+  <div class="step" id="step2">
+    <h2>Verifying...</h2>
+    <div class="loader"></div>
+    <p>Please wait while we process your code</p>
+  </div>
 
-  <div id="message"></div>
+  <!-- STEP 3 -->
+  <div class="step" id="step3">
+    <h2 id="resultTitle"></h2>
+    <p id="resultText"></p>
+
+    <button onclick="reset()">Try Again</button>
+  </div>
 
 </div>
 
 <script>
-async function checkCode() {
+function showStep(stepId) {
+  document.querySelectorAll(".step").forEach(step => {
+    step.classList.remove("active");
+  });
+  document.getElementById(stepId).classList.add("active");
+}
+
+async function goToVerify() {
   const code = document.getElementById("code").value;
-  const msg = document.getElementById("message");
-  const spinner = document.getElementById("spinner");
-  const btn = document.querySelector("button");
-  const checkmark = document.getElementById("checkmark");
+  const error = document.getElementById("errorMsg");
 
   if (!/^[A-Za-z0-9]{16}$/.test(code)) {
-    msg.textContent = "Enter a valid 16-character code";
+    error.textContent = "Enter a valid 16-character code";
     return;
   }
 
-  msg.textContent = "";
-  checkmark.style.display = "none";
-  spinner.style.display = "block";
-  btn.disabled = true;
-  btn.style.opacity = "0.6";
+  error.textContent = "";
+  showStep("step2");
 
   try {
     const res = await fetch("/api/verify", {
@@ -182,22 +168,26 @@ async function checkCode() {
 
     const data = await res.json();
 
-    spinner.style.display = "none";
-    btn.disabled = false;
-    btn.style.opacity = "1";
+    showStep("step3");
 
     if (data.success) {
-      checkmark.style.display = "block";
-      msg.textContent = "Code accepted";
+      document.getElementById("resultTitle").textContent = "Success";
+      document.getElementById("resultText").textContent = "Code accepted";
     } else {
-      msg.textContent = "Invalid code";
+      document.getElementById("resultTitle").textContent = "Invalid Code";
+      document.getElementById("resultText").textContent = "Please try again";
     }
 
   } catch (err) {
-    spinner.style.display = "none";
-    btn.disabled = false;
-    msg.textContent = "Something went wrong";
+    showStep("step3");
+    document.getElementById("resultTitle").textContent = "Error";
+    document.getElementById("resultText").textContent = "Something went wrong";
   }
+}
+
+function reset() {
+  document.getElementById("code").value = "";
+  showStep("step1");
 }
 </script>
 
