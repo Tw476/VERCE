@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Code Check</title>
+<title>Secure Code Check</title>
 
 <style>
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-  background: linear-gradient(135deg, #0f172a, #020617);
+  background: radial-gradient(circle at top, #1e293b, #020617);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -44,6 +44,8 @@ input {
   border: 1px solid #334155;
   background: #020617;
   color: white;
+  text-align: center;
+  letter-spacing: 2px;
 }
 
 /* Button */
@@ -71,6 +73,21 @@ button:hover {
   color: #94a3b8;
 }
 
+/* Spinner */
+.loader {
+  border: 4px solid #1e293b;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  margin: 10px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
@@ -88,15 +105,24 @@ button:hover {
 
 <div class="card">
 
-  <!-- LOGO -->
-  <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" class="logo">
+  <!-- Replace with your own logo if you want -->
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Gray_circles_rotate.gif" class="logo">
 
-  <h2>Check Your Code</h2>
-  <p>Enter 16-character code</p>
+  <h2>Secure Code Check</h2>
+  <p>Enter your 16-character code</p>
 
-  <input id="code" maxlength="16" placeholder="Enter code" oninput="this.value = this.value.toUpperCase()">
+  <input 
+    id="code" 
+    maxlength="16" 
+    placeholder="ENTER CODE"
+    oninput="this.value = this.value.toUpperCase()"
+  >
 
   <button onclick="checkCode()">Continue</button>
+
+  <div id="spinner" style="display:none;">
+    <div class="loader"></div>
+  </div>
 
   <div id="message"></div>
 
@@ -106,26 +132,42 @@ button:hover {
 async function checkCode() {
   const code = document.getElementById("code").value;
   const msg = document.getElementById("message");
+  const spinner = document.getElementById("spinner");
+  const btn = document.querySelector("button");
 
   if (!/^[A-Za-z0-9]{16}$/.test(code)) {
     msg.textContent = "Enter a valid 16-character code";
     return;
   }
 
-  msg.textContent = "Checking...";
+  msg.textContent = "";
+  spinner.style.display = "block";
+  btn.disabled = true;
+  btn.style.opacity = "0.6";
 
-  const res = await fetch("/api/verify", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ code })
-  });
+  try {
+    const res = await fetch("/api/verify", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ code })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.success) {
-    msg.textContent = "Code accepted";
-  } else {
-    msg.textContent = "Invalid code";
+    spinner.style.display = "none";
+    btn.disabled = false;
+    btn.style.opacity = "1";
+
+    if (data.success) {
+      msg.textContent = "Code accepted";
+    } else {
+      msg.textContent = "Invalid code";
+    }
+
+  } catch (err) {
+    spinner.style.display = "none";
+    btn.disabled = false;
+    msg.textContent = "Something went wrong";
   }
 }
 </script>
